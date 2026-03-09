@@ -1,0 +1,10 @@
+.env.local
+node_modules/
+vendor/
+bootstrap/cache/
+storage/logs/
+storage/app/
+.DS_Store
+*.log
+.idea/
+.vscode/
