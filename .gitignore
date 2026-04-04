@@ -3,7 +3,6 @@
 .env
 .env.wasmer
 .env.local
-app.yaml
 .DS_Store
 *.log
 .idea/

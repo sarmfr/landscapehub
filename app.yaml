@@ -1,0 +1,5 @@
+name: landscapehub
+app_id: da_K53IxtPUxNWE
+owner: samson
+package: .
+kind: wasmer.io/App.v0
