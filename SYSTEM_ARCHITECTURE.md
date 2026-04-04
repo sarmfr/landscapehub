@@ -459,7 +459,7 @@ Scalability:
 
 ```
 ┌──────────────┐
-│  VPS Server  │
+│ Wasmer Edge  │
 ├──────────────┤
 │              │
 ├─ Laravel App

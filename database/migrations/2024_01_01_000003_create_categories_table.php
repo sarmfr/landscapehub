@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('slug')->unique();
-            $table->enum('type', ['product', 'service'])->default('product');
+            $table->enum('type', ['product', 'service', 'both'])->default('product');
             $table->text('description')->nullable();
             $table->string('icon')->nullable();
             $table->timestamps();

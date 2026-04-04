@@ -1,0 +1,27 @@
+{
+    "name": "landscapehub/mpesa-daraja-plugin",
+    "description": "Reusable Safaricom Daraja payment package for Laravel marketplaces.",
+    "type": "library",
+    "version": "1.0.0",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "illuminate/cache": "^10.0|^11.0|^12.0",
+        "illuminate/http": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LandscapeHub\\Payments\\MpesaDaraja\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LandscapeHub\\Payments\\MpesaDaraja\\MpesaDarajaServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

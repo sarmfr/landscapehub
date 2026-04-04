@@ -10,7 +10,7 @@
             <p class="text-gray-600 mt-2">Track your project requests and professional confirmations.</p>
         </div>
         <a href="{{ route('services') }}" class="bg-green-700 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-800 transition shadow-lg inline-block">
-            🚜 Book New Service
+            Book New Service
         </a>
     </div>
 
@@ -32,10 +32,10 @@
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border">
-                                    @if($booking->service->image_path)
-                                    <img src="{{ $booking->service->image_path }}" alt="{{ $booking->service->name }}" class="w-full h-full object-cover">
+                                    @if($booking->service->getImageUrl())
+                                    <img src="{{ $booking->service->getImageUrl() }}" alt="{{ $booking->service->name }}" class="w-full h-full object-cover">
                                     @else
-                                    <div class="w-full h-full flex items-center justify-center text-xl">🏗</div>
+                                    <div class="w-full h-full flex items-center justify-center text-xs text-gray-500">N/A</div>
                                     @endif
                                 </div>
                                 <div>
@@ -50,7 +50,7 @@
                         </td>
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-2 text-gray-900 font-medium">
-                                <span>📅</span>
+                                <span class="text-xs font-semibold text-gray-500 uppercase">Date</span>
                                 {{ \Carbon\Carbon::parse($booking->booking_date)->format('M d, Y') }}
                             </div>
                         </td>
@@ -71,7 +71,7 @@
                     @empty
                     <tr>
                         <td colspan="5" class="px-8 py-20 text-center">
-                            <div class="text-5xl mb-4 opacity-20">🚜</div>
+                            <div class="text-3xl mb-4 opacity-20">No bookings</div>
                             <p class="text-gray-400 font-medium italic">You haven't made any service bookings yet.</p>
                             <a href="{{ route('services') }}" class="text-green-700 font-bold hover:underline mt-2 inline-block">Explore professional services</a>
                         </td>

@@ -55,6 +55,16 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
+        $booking->loadMissing(['service', 'vendor.user']);
+
+        $user = Auth::user();
+        $isBookingOwner = $booking->user_id === $user->id;
+        $isAssignedVendor = $booking->vendor?->user_id === $user->id;
+
+        if (!$user->isAdmin() && !$isBookingOwner && !$isAssignedVendor) {
+            abort(403);
+        }
+
         return view('bookings.show', ['booking' => $booking]);
     }
 

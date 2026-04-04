@@ -17,7 +17,10 @@ return [
             'consumer_key' => env('MPESA_CONSUMER_KEY'),
             'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
             'short_code' => env('MPESA_SHORTCODE'),
+            'party_b' => env('MPESA_PARTY_B', env('MPESA_SHORTCODE')),
             'passkey' => env('MPESA_PASSKEY'),
+            'business_type' => env('MPESA_BUSINESS_TYPE', 'paybill'),
+            'callback_url' => env('MPESA_CALLBACK_URL'),
             'env' => env('MPESA_ENV', 'sandbox'),
         ],
         // Add more providers here

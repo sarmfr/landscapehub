@@ -54,23 +54,46 @@ class ReviewController extends Controller
             'comment' => 'required|string|min:10',
             'product_id' => 'nullable|exists:products,id',
             'service_id' => 'nullable|exists:services,id',
-            'vendor_id' => 'required|exists:vendors,id',
-            'is_verified_purchase' => 'required|boolean',
         ]);
+
+        $hasProduct = !empty($validated['product_id']);
+        $hasService = !empty($validated['service_id']);
+
+        if ($hasProduct === $hasService) {
+            return back()
+                ->withErrors(['reviewable' => 'Please review either a product or a service.'])
+                ->withInput();
+        }
+
+        $product = $hasProduct ? Product::with('vendor')->findOrFail($validated['product_id']) : null;
+        $service = $hasService ? Service::with('vendor')->findOrFail($validated['service_id']) : null;
+
+        $vendorId = $product?->vendor_id ?? $service?->vendor_id;
+        $isVerifiedPurchase = $product
+            ? Order::where('user_id', Auth::id())
+                ->whereHas('items', function ($query) use ($product) {
+                    $query->where('product_id', $product->id);
+                })
+                ->where('payment_status', 'completed')
+                ->exists()
+            : Booking::where('user_id', Auth::id())
+                ->where('service_id', $service->id)
+                ->where('status', 'completed')
+                ->exists();
 
         Review::create([
             'user_id' => Auth::id(),
-            'vendor_id' => $validated['vendor_id'],
+            'vendor_id' => $vendorId,
             'product_id' => $validated['product_id'] ?? null,
             'service_id' => $validated['service_id'] ?? null,
             'rating' => $validated['rating'],
             'comment' => $validated['comment'],
-            'is_verified_purchase' => $validated['is_verified_purchase'],
+            'is_verified_purchase' => $isVerifiedPurchase,
         ]);
 
-        $route = $validated['product_id']
-            ? route('products.show', Product::find($validated['product_id'])->slug)
-            : route('services.show', Service::find($validated['service_id'])->slug);
+        $route = $product
+            ? route('products.show', $product->slug)
+            : route('services.show', $service->slug);
 
         return redirect($route)->with('success', 'Review submitted successfully!');
     }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d531bdf46759740349ecdd1a8e034093",
+    "content-hash": "57e32cdde585f2d560e3411023c481b0",
     "packages": [
         {
             "name": "brick/math",
@@ -726,6 +726,41 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "landscapehub/mpesa-daraja-plugin",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/mpesa-daraja-plugin",
+                "reference": "c304e76a2a2b33df23a2705875b11de43bbe9b97"
+            },
+            "require": {
+                "illuminate/cache": "^10.0|^11.0|^12.0",
+                "illuminate/http": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "LandscapeHub\\Payments\\MpesaDaraja\\MpesaDarajaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LandscapeHub\\Payments\\MpesaDaraja\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Reusable Safaricom Daraja payment package for Laravel marketplaces.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "laravel/framework",
@@ -7539,7 +7574,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.1"
+        "php": "^8.2"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

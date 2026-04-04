@@ -6,9 +6,9 @@
 <div class="max-w-3xl mx-auto px-6 py-12">
     <div class="mb-8">
         @if($type === 'product')
-        <a href="{{ route('products.show', $item->slug) }}" class="text-green-700 hover:underline font-bold">← Back to Product</a>
+        <a href="{{ route('products.show', $item->slug) }}" class="text-green-700 hover:underline font-bold">&larr; Back to Product</a>
         @else
-        <a href="{{ route('services.show', $item->slug) }}" class="text-green-700 hover:underline font-bold">← Back to Service</a>
+        <a href="{{ route('services.show', $item->slug) }}" class="text-green-700 hover:underline font-bold">&larr; Back to Service</a>
         @endif
         <h1 class="text-3xl font-black mt-2 text-gray-900">Share Your Experience</h1>
         <p class="text-gray-500 italic">Your review helps other community members make better decisions and rewards excellent service.</p>
@@ -22,7 +22,7 @@
                 @elseif($type === 'service' && $item->getImageUrl())
                 <img src="{{ $item->getImageUrl() }}" alt="{{ $item->name }}" class="w-full h-full object-cover">
                 @else
-                {{ $type === 'product' ? '🌿' : '🏗' }}
+                {{ $type === 'product' ? 'P' : 'S' }}
                 @endif
             </div>
             <div>
@@ -36,28 +36,25 @@
             <form action="{{ route('reviews.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="{{ $type }}_id" value="{{ $item->id }}">
-                <input type="hidden" name="vendor_id" value="{{ $item->vendor_id }}">
-                <input type="hidden" name="is_verified_purchase" value="{{ $is_verified ? 1 : 0 }}">
 
                 <div class="space-y-8">
-                    <!-- Rating Selector -->
                     <div>
                         <label class="block text-sm font-black text-gray-700 uppercase tracking-widest mb-4">Overall Rating</label>
                         <div class="flex items-center gap-4">
                             @for($i = 1; $i <= 5; $i++)
                                 <label class="cursor-pointer group">
-                                <input type="radio" name="rating" value="{{ $i }}" class="hidden peer" required>
-                                <div class="w-12 h-12 flex items-center justify-center rounded-xl border-2 border-gray-100 bg-gray-50 text-gray-400 transition-all peer-checked:border-yellow-400 peer-checked:bg-yellow-50 peer-checked:text-yellow-600 hover:bg-white hover:border-yellow-200">
-                                    <span class="text-xl font-black">{{ $i }}</span>
-                                </div>
+                                    <input type="radio" name="rating" value="{{ $i }}" class="hidden peer" required>
+                                    <div class="w-12 h-12 flex items-center justify-center rounded-xl border-2 border-gray-100 bg-gray-50 text-gray-400 transition-all peer-checked:border-yellow-400 peer-checked:bg-yellow-50 peer-checked:text-yellow-600 hover:bg-white hover:border-yellow-200">
+                                        <span class="text-xl font-black">{{ $i }}</span>
+                                    </div>
                                 </label>
-                                @endfor
-                                <span class="ml-2 text-gray-400 italic">Stars</span>
+                            @endfor
+                            <span class="ml-2 text-gray-400 italic">Stars</span>
                         </div>
                         @error('rating') <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p> @enderror
+                        @error('reviewable') <p class="text-red-500 text-xs mt-1 font-bold">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- Comment -->
                     <div>
                         <label for="comment" class="block text-sm font-black text-gray-700 uppercase tracking-widest mb-2">Detail your experience</label>
                         <textarea name="comment" id="comment" rows="6" required placeholder="What did you like? How was the service or quality?..."
@@ -68,8 +65,13 @@
 
                     @if($is_verified)
                     <div class="bg-green-50 border border-green-100 p-4 rounded-2xl flex items-center gap-3">
-                        <span class="text-xl">✅</span>
+                        <span class="text-xl">OK</span>
                         <p class="text-sm text-green-800 font-bold">This will be marked as a <span class="underline">Verified Purchase</span> review.</p>
+                    </div>
+                    @else
+                    <div class="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center gap-3">
+                        <span class="text-xl">i</span>
+                        <p class="text-sm text-amber-900 font-bold">This review will be published as unverified because we could not confirm a completed purchase or booking for this item.</p>
                     </div>
                     @endif
 

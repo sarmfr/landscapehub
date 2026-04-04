@@ -1,7 +1,9 @@
 /node_modules
 /vendor
 .env
+.env.wasmer
 .env.local
+app.yaml
 .DS_Store
 *.log
 .idea/
@@ -12,9 +14,15 @@
 !/storage/app/public
 /storage/framework/cache/data/*
 /storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
 /storage/framework/testing/*
 /storage/framework/views/*
+!/storage/framework/views/.gitignore
 /storage/logs/*
+/public/storage/*
+!/public/storage/.gitignore
+/phpunit.result.cache
+/.phpunit.cache/
 
 /bootstrap/cache/*
 !/bootstrap/cache/.gitignore

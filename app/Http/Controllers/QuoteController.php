@@ -5,17 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Quote;
 use App\Models\QuoteResponse;
 use App\Models\Category;
+use App\Services\SafeMailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\QuoteRequestNotification;
 use App\Mail\QuoteAcceptedNotification;
 use App\Models\Vendor;
 
 class QuoteController extends Controller
 {
-    public function __construct()
+    public function __construct(protected SafeMailService $safeMail)
     {
         $this->middleware('auth');
     }
@@ -58,7 +58,15 @@ class QuoteController extends Controller
         // Notify all active vendors (Simplified)
         $vendors = Vendor::where('approval_status', 'approved')->with('user')->get();
         foreach ($vendors as $vendor) {
-            Mail::to($vendor->user->email)->queue(new QuoteRequestNotification($quote));
+            $this->safeMail->queue(
+                $vendor->user->email,
+                new QuoteRequestNotification($quote),
+                'Quote request email failed to queue.',
+                [
+                    'quote_id' => $quote->id,
+                    'vendor_id' => $vendor->id,
+                ]
+            );
         }
 
         return redirect()->route('quotes.show', $quote)->with('success', 'Quote request posted successfully!');
@@ -89,8 +97,16 @@ class QuoteController extends Controller
 
         $response->update(['status' => 'accepted']);
 
-        // Notify the accepted vendor
-        Mail::to($response->vendor->user->email)->send(new QuoteAcceptedNotification($quote, $response));
+        $this->safeMail->send(
+            $response->vendor->user->email,
+            new QuoteAcceptedNotification($quote, $response),
+            'Quote acceptance email failed to send.',
+            [
+                'quote_id' => $quote->id,
+                'quote_response_id' => $response->id,
+                'vendor_id' => $response->vendor_id,
+            ]
+        );
 
         // Reject other pending responses
         $quote->responses()->where('id', '!=', $response->id)->update(['status' => 'rejected']);

@@ -73,30 +73,38 @@ class CartController extends Controller
             return redirect()->route('login');
         }
 
+        $request->validate([
+            'mpesa_phone' => ['required', 'string', 'max:20'],
+        ]);
+
         $cart = session()->get('cart', []);
         if (empty($cart)) {
             return redirect()->route('cart.view')->withErrors(['cart' => 'Your cart is empty!']);
         }
 
         $total = 0;
+        $commissionAmount = 0;
         $items = [];
 
         foreach ($cart as $productId => $quantity) {
-            $product = Product::find($productId);
+            $product = Product::with('vendor')->find($productId);
             if ($product) {
+                $subtotal = $product->price * $quantity;
+                $rate = (float) ($product->vendor->commission_rate ?? config('payment.commission_rate', 10));
+
                 $items[] = [
                     'product_id' => $productId,
                     'product_name' => $product->name,
                     'quantity' => $quantity,
                     'price' => $product->price,
-                    'subtotal' => $product->price * $quantity,
+                    'subtotal' => $subtotal,
                 ];
-                $total += $product->price * $quantity;
+
+                $total += $subtotal;
+                $commissionAmount += ($subtotal * $rate) / 100;
             }
         }
 
-        $commissionRate = config('app.commission_rate', 10);
-        $commissionAmount = ($total * $commissionRate) / 100;
         $vendorAmount = $total - $commissionAmount;
 
         $order = Order::create([
@@ -107,6 +115,7 @@ class CartController extends Controller
             'vendor_amount' => $vendorAmount,
             'status' => 'pending',
             'payment_status' => 'pending',
+            'payment_provider' => config('payment.default', 'mpesa'),
             'mpesa_phone' => $request->input('mpesa_phone'),
         ]);
 

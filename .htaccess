@@ -1,0 +1,15 @@
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^(images|storage)/(.*)$ public/$1/$2 [L,NC]
+    RewriteRule ^(favicon\.ico|robots\.txt)$ public/$1 [L,NC]
+
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteRule ^ index.php [L]
+</IfModule>

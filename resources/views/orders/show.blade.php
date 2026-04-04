@@ -6,7 +6,7 @@
 <div class="max-w-5xl mx-auto px-6 py-12">
     <div class="mb-8 flex justify-between items-end">
         <div>
-            <a href="{{ route('orders.index') }}" class="text-green-700 hover:underline">← My Orders</a>
+            <a href="{{ route('orders.index') }}" class="text-green-700 hover:underline">Back to My Orders</a>
             <h1 class="text-3xl font-bold mt-2">Order #{{ $order->order_number }}</h1>
             <p class="text-gray-600">Placed on {{ $order->created_at->format('M d, Y') }}</p>
         </div>
@@ -22,7 +22,6 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 space-y-8">
-            <!-- Items -->
             <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
                 <div class="p-6 border-b bg-gray-50">
                     <h2 class="font-bold">Order Items</h2>
@@ -32,7 +31,7 @@
                     <div class="p-6 flex items-center justify-between">
                         <div>
                             <h3 class="font-semibold text-gray-900">{{ $item->product_name }}</h3>
-                            <p class="text-sm text-gray-500">Qty: {{ $item->quantity }} @ KES {{ number_format($item->price) }}</p>
+                            <p class="text-sm text-gray-500">Qty: {{ $item->quantity }} at KES {{ number_format($item->price) }}</p>
                         </div>
                         <div class="text-right flex flex-col items-end gap-2">
                             <p class="font-bold text-gray-900">KES {{ number_format($item->subtotal) }}</p>
@@ -51,22 +50,32 @@
         </div>
 
         <div class="space-y-8">
-            <!-- Payment Info -->
             <div class="bg-white rounded-xl shadow-sm border p-6">
                 <h2 class="font-bold mb-4">Payment Information</h2>
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between">
                         <span class="text-gray-600">Status:</span>
-                        <span class="font-bold uppercase text-{{ $order->payment_status === 'completed' ? 'green' : 'red' }}-700">{{ $order->payment_status }}</span>
+                        <span class="font-bold uppercase text-{{ $order->payment_status === 'completed' ? 'green' : ($order->payment_status === 'pending' ? 'amber' : 'red') }}-700">{{ $order->payment_status }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Method:</span>
                         <span class="font-medium">M-Pesa ({{ $order->mpesa_phone }})</span>
                     </div>
+                    @if($order->mpesa_reference)
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Receipt:</span>
+                        <span class="font-medium">{{ $order->mpesa_reference }}</span>
+                    </div>
+                    @endif
                 </div>
+
+                @if($order->payment_status !== 'completed')
+                <a href="{{ route('order.payment', $order->id) }}" class="inline-flex mt-5 w-full items-center justify-center rounded-lg bg-green-700 px-4 py-3 text-sm font-semibold text-white hover:bg-green-800">
+                    Complete Payment
+                </a>
+                @endif
             </div>
 
-            <!-- Help -->
             <div class="bg-green-50 rounded-xl p-6 border border-green-100 italic text-sm text-green-800">
                 If you have any questions about your order, please contact our support team at support@landscapehub.co.ke
             </div>

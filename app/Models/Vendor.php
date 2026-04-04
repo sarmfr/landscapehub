@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Config;
 
 class Vendor extends Model
 {
@@ -55,12 +56,20 @@ class Vendor extends Model
 
     public function getTotalEarnings()
     {
-        $orders = Order::whereHas('items', function ($query) {
-            $query->whereHas('product', function ($q) {
-                $q->where('vendor_id', $this->id);
-            });
-        })->where('payment_status', 'completed')->get();
+        return OrderItem::query()
+            ->whereHas('order', function ($query) {
+                $query->where('payment_status', 'completed');
+            })
+            ->whereHas('product', function ($query) {
+                $query->where('vendor_id', $this->id);
+            })
+            ->with('product.vendor')
+            ->get()
+            ->sum(function (OrderItem $item) {
+                $rate = (float) ($item->product?->vendor?->commission_rate ?? Config::get('payment.commission_rate', 10));
+                $subtotal = (float) $item->subtotal;
 
-        return $orders->sum('vendor_amount');
+                return $subtotal - (($subtotal * $rate) / 100);
+            });
     }
 }

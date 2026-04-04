@@ -80,6 +80,11 @@
             <div class="mb-4">
                 <label class="block text-sm font-semibold text-gray-600">Commission Rate</label>
                 <p class="text-2xl font-bold text-gray-900">{{ $vendor->commission_rate }}%</p>
+                @if ($vendor->approval_status === 'approved')
+                <button onclick="document.getElementById('commissionModal').classList.remove('hidden')" class="text-sm text-green-600 hover:text-green-800 mt-1">
+                    Update Rate →
+                </button>
+                @endif
             </div>
             <div class="text-sm text-gray-600">
                 <p>Created: {{ $vendor->created_at->format('M d, Y') }}</p>
@@ -144,6 +149,27 @@
             <div class="flex gap-4">
                 <button type="button" onclick="document.getElementById('suspendModal').classList.add('hidden')" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg">Cancel</button>
                 <button type="submit" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg">Suspend</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Commission Rate Update Modal -->
+<div id="commissionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-96">
+        <h2 class="text-xl font-bold mb-4">Update Commission Rate</h2>
+        <form action="{{ route('admin.vendors.commission', $vendor) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2">New Commission Rate (%)</label>
+                <input type="number" name="commission_rate" value="{{ $vendor->commission_rate }}" min="0" max="100" step="0.1" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+                <p class="text-xs text-gray-500 mt-1">This is the platform fee deducted from vendor sales.</p>
+            </div>
+            <div class="flex gap-4">
+                <button type="button" onclick="document.getElementById('commissionModal').classList.add('hidden')" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Update</button>
             </div>
         </form>
     </div>
