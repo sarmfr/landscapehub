@@ -5,6 +5,24 @@ This project can be deployed to Wasmer Edge in two phases:
 1. Host the marketplace with the current mock payment flow.
 2. Replace the mock flow with Safaricom Daraja sandbox integration.
 
+## Deploying from the GitHub repo
+
+This repository already includes a GitHub Actions workflow at `.github/workflows/wasmer-deploy.yml`.
+
+Use this path if you want GitHub to publish to Wasmer for you:
+
+1. Add a repository secret named `WASMER_TOKEN`.
+2. Push to the `codex/wasmer-github-deploy` branch or run the workflow manually from the Actions tab.
+3. Make sure the Wasmer app already has the production env secrets configured.
+
+The workflow deploys using the checked-in `app.yaml`, so the app definition in that file is the source of truth for:
+
+- the Wasmer app identity
+- region pinning
+- the persistent media volume
+- the Wasmer-managed MySQL capability
+- health checks and InstaBoot
+
 ## What changed in this repo
 
 - Added `wasmer.toml` so Wasmer can run the Laravel app.
