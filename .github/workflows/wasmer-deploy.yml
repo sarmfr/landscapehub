@@ -40,4 +40,4 @@ jobs:
       - name: Deploy app
         env:
           WASMER_TOKEN: ${{ secrets.WASMER_TOKEN }}
-        run: wasmer deploy --non-interactive --publish-package --path app.yaml --no-wait
+        run: wasmer deploy --non-interactive --publish-package --no-wait
