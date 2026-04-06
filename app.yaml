@@ -1,7 +1,6 @@
 kind: wasmer.io/App.v0
 owner: samson
 name: landscapehub
-app_id: da_K53IxtPUxNWE
 package: .
 
 debug: false
