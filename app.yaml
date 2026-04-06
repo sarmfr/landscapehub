@@ -2,34 +2,3 @@ kind: wasmer.io/App.v0
 owner: samson
 name: landscapehub
 package: .
-
-debug: false
-
-scaling:
-  mode: single_concurrency
-
-locality:
-  regions:
-    - us-socal1
-
-volumes:
-  - name: media
-    mount: /app/storage/app/public
-
-capabilities:
-  database:
-    engine: mysql
-  instaboot:
-    requests:
-      - path: /
-
-health_checks:
-  - http:
-      method: get
-      path: /
-      interval: 30s
-      timeout: 10s
-      unhealthy_threshold: 2
-      healthy_threshold: 1
-      expected_status_codes:
-        - 200
