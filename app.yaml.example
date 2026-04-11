@@ -10,15 +10,13 @@ scaling:
 
 locality:
   regions:
-    - be-mons1
+    - us-socal1
 
 volumes:
   - name: media
     mount: /app/storage/app/public
 
 capabilities:
-  database:
-    engine: mysql
   instaboot:
     requests:
       - path: /
