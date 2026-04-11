@@ -20,11 +20,12 @@ The workflow deploys using the checked-in `app.yaml`, so the app definition in t
 - the Wasmer app identity
 - region pinning
 - the persistent media volume
-- health checks and InstaBoot
+- region pinning and volume settings (InstaBoot removed temporarily for schema compatibility)
 - the post-deploy Laravel migrate-and-seed job
 
 The checked-in manifest currently avoids the Wasmer-managed database capability because Wasmer rejected new database provisioning in both `us-socal1` and `be-mons1` during GitHub deploys on April 11, 2026.
 Use external MySQL credentials via `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, and `DB_DATABASE` (or `DB_NAME`).
+The manifest also avoids InstaBoot for now because Wasmer returned `capabilities.bootstrap.mode` schema errors during publish.
 
 After each deploy, Wasmer now runs `php /app/artisan migrate --force --seed` so a fresh database can bootstrap sample marketplace data automatically.
 

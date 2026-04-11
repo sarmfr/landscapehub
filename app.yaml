@@ -16,11 +16,6 @@ volumes:
   - name: media
     mount: /app/storage/app/public
 
-capabilities:
-  instaboot:
-    requests:
-      - path: /
-
 jobs:
   - name: migrate-and-seed-marketplace
     trigger: post-deployment
