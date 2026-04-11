@@ -18,14 +18,13 @@ Use this path if you want GitHub to publish to Wasmer for you:
 The workflow deploys using the checked-in `app.yaml`, so the app definition in that file is the source of truth for:
 
 - the Wasmer app identity
-- region pinning
-- the persistent media volume
-- volume settings (InstaBoot removed temporarily for schema compatibility)
+- minimal app publish settings only (region pinning and volume are intentionally omitted for first deploy)
 
 The checked-in manifest currently avoids the Wasmer-managed database capability because Wasmer rejected new database provisioning in both `us-socal1` and `be-mons1` during GitHub deploys on April 11, 2026.
 Use external MySQL credentials via `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, and `DB_DATABASE` (or `DB_NAME`).
 The manifest also avoids InstaBoot for now because Wasmer returned `capabilities.bootstrap.mode` schema errors during publish.
 Database setup is now manual by design: deploy first, attach/configure DB later, then run Laravel migration/seed commands when DB connectivity is confirmed.
+Volume setup is also manual for now: attach it after first successful deploy, then set `PUBLIC_DISK_ROOT` if you mount somewhere other than `/app/storage/app/public`.
 
 ## What changed in this repo
 
@@ -60,7 +59,8 @@ The Laravel config in this repo now accepts either `DB_DATABASE` or Wasmer's aut
 5. Add those values to Wasmer as app secrets (DB values can be added later).
 6. Deploy with `wasmer deploy`.
 7. Create/configure your database manually from Wasmer settings (or external MySQL).
-8. Set `DB_*` secrets, then run migrations and optional seed manually.
+8. Optional: attach a persistent volume for uploads.
+9. Set `DB_*` secrets, then run migrations and optional seed manually.
 
 ## Suggested Wasmer secrets
 
@@ -134,7 +134,7 @@ php artisan db:seed --force
 
 ## Important limitation for phase 1
 
-User uploads currently use the local `public` disk. This repo is now prepared to keep those files on a Wasmer volume mounted at `/app/storage/app/public`, but that only stays durable if the deployed app keeps that volume attached in a region that supports volumes.
+User uploads currently use the local `public` disk. Add a Wasmer persistent volume manually once the base app deploy is stable so uploads survive restarts and deploys.
 
 If you later outgrow local volume-backed media, the next step is moving uploads to object storage such as an S3-compatible bucket.
 
