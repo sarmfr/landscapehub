@@ -22,6 +22,20 @@ The workflow deploys using the checked-in `app.yaml`, so the app definition in t
 - the persistent media volume
 - the Wasmer-managed MySQL capability
 - health checks and InstaBoot
+- the post-deploy Laravel migrate-and-seed job
+
+After each deploy, Wasmer now runs `php /app/artisan migrate --force --seed` so a fresh database can bootstrap sample marketplace data automatically.
+
+## Demo access after deploy
+
+When the deployed database starts empty, the default seeder now creates:
+
+- admin account: `admin@landscapehub.com` / `password`
+- vendor account: `vendor1@landscapehub.com` / `password`
+- vendor account: `vendor2@landscapehub.com` / `password`
+- customer account: `customer@landscapehub.com` / `password`
+
+It also inserts starter categories, products, and services so the deployed site is populated immediately.
 
 ## What changed in this repo
 

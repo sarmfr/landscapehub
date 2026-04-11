@@ -17,6 +17,22 @@ volumes:
     mount: /app/storage/app/public
 
 capabilities:
+  database:
+    engine: mysql
   instaboot:
     requests:
       - path: /
+
+jobs:
+  - name: migrate-and-seed-marketplace
+    trigger: post-deployment
+    retries: 1
+    timeout: 10m
+    action:
+      execute:
+        command: php
+        cli_args:
+          - /app/artisan
+          - migrate
+          - --force
+          - --seed
