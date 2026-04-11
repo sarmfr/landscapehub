@@ -24,6 +24,8 @@ The workflow deploys using the checked-in `app.yaml`, so the app definition in t
 - health checks and InstaBoot
 - the post-deploy Laravel migrate-and-seed job
 
+The checked-in manifest currently pins `be-mons1` because Wasmer rejected new database provisioning in `us-socal1` during deployment.
+
 After each deploy, Wasmer now runs `php /app/artisan migrate --force --seed` so a fresh database can bootstrap sample marketplace data automatically.
 
 ## Demo access after deploy

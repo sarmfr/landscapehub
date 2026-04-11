@@ -10,7 +10,7 @@ scaling:
 
 locality:
   regions:
-    - us-socal1
+    - be-mons1
 
 volumes:
   - name: media
