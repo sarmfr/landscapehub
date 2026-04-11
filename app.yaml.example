@@ -15,17 +15,3 @@ locality:
 volumes:
   - name: media
     mount: /app/storage/app/public
-
-jobs:
-  - name: migrate-and-seed-marketplace
-    trigger: post-deployment
-    retries: 1
-    timeout: 10m
-    action:
-      execute:
-        command: php
-        cli_args:
-          - /app/artisan
-          - migrate
-          - --force
-          - --seed
