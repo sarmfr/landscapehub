@@ -17,19 +17,6 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
-| Ensure Core View Binding Exists
-|--------------------------------------------------------------------------
-|
-| Some Wasmer runtimes have shown intermittent provider bootstrap gaps where
-| the "view" binding is missing very early in exception rendering. Register
-| the ViewServiceProvider explicitly to guarantee Blade/view resolution.
-|
-*/
-
-$app->register(Illuminate\View\ViewServiceProvider::class);
-
-/*
-|--------------------------------------------------------------------------
 | Bind Important Interfaces
 |--------------------------------------------------------------------------
 |
