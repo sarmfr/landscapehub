@@ -58,10 +58,22 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false),
-            ]) : [],
+            'options' => extension_loaded('pdo_mysql') ? (static function (): array {
+                $options = [];
+
+                if (defined('PDO::MYSQL_ATTR_SSL_CA') && env('MYSQL_ATTR_SSL_CA')) {
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = env('MYSQL_ATTR_SSL_CA');
+                }
+
+                if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+                    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = filter_var(
+                        env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false),
+                        FILTER_VALIDATE_BOOL
+                    );
+                }
+
+                return $options;
+            })() : [],
         ],
 
         'pgsql' => [
