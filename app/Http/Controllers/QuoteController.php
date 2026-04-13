@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Mail\QuoteRequestNotification;
 use App\Mail\QuoteAcceptedNotification;
 use App\Models\Vendor;
+use Throwable;
 
 class QuoteController extends Controller
 {
@@ -43,7 +44,15 @@ class QuoteController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('quotes', 'public');
+            try {
+                $imagePath = $request->file('image')->store('quotes', 'public');
+            } catch (Throwable $e) {
+                report($e);
+
+                return back()
+                    ->withInput()
+                    ->withErrors(['image' => 'We could not upload the quote image right now. Please try again shortly.']);
+            }
         }
 
         $quote = Quote::create([

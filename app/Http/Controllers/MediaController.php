@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class MediaController extends Controller
 {
-    public function __invoke(string $path): BinaryFileResponse
+    public function __invoke(string $path): Response
     {
         abort_if(str_contains($path, '..'), 404);
 

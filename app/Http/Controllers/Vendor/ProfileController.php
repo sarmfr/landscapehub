@@ -7,6 +7,7 @@ use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ProfileController extends Controller
 {
@@ -54,8 +55,16 @@ class ProfileController extends Controller
 
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_image')->store('vendors', 'public');
-            $validated['profile_image'] = $path;
+            try {
+                $path = $request->file('profile_image')->store('vendors', 'public');
+                $validated['profile_image'] = $path;
+            } catch (Throwable $e) {
+                report($e);
+
+                return back()
+                    ->withInput()
+                    ->withErrors(['profile_image' => 'We could not save the profile image right now. Please try again shortly.']);
+            }
         }
 
         $validated['user_id'] = $user->id;
@@ -106,12 +115,20 @@ class ProfileController extends Controller
 
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
-            // Delete old image
-            if ($vendor->profile_image) {
-                Storage::disk('public')->delete($vendor->profile_image);
+            try {
+                // Delete old image
+                if ($vendor->profile_image) {
+                    Storage::disk('public')->delete($vendor->profile_image);
+                }
+                $path = $request->file('profile_image')->store('vendors', 'public');
+                $validated['profile_image'] = $path;
+            } catch (Throwable $e) {
+                report($e);
+
+                return back()
+                    ->withInput()
+                    ->withErrors(['profile_image' => 'We could not update the profile image right now. Please try again shortly.']);
             }
-            $path = $request->file('profile_image')->store('vendors', 'public');
-            $validated['profile_image'] = $path;
         }
 
         $vendor->update($validated);

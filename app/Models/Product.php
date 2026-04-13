@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -52,6 +53,6 @@ class Product extends Model
         $path = $this->images()->where('is_primary', true)->first()?->image_path;
         if (!$path) return null;
         if (filter_var($path, FILTER_VALIDATE_URL)) return $path;
-        return asset('storage/' . $path);
+        return Storage::disk('public')->url($path);
     }
 }

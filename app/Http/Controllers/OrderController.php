@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PDOException;
 
 class OrderController extends Controller
 {
@@ -12,7 +14,7 @@ class OrderController extends Controller
 
     public function __construct(\App\Services\PaymentService $paymentService)
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['handlePaymentCallback', 'handlePaymentWebhook']);
         $this->paymentService = $paymentService;
     }
 
@@ -75,7 +77,16 @@ class OrderController extends Controller
 
     public function myOrders()
     {
-        $orders = Auth::user()->orders()->latest()->paginate(10);
+        try {
+            $orders = Auth::user()->orders()->latest()->paginate(10);
+        } catch (QueryException|PDOException $e) {
+            report($e);
+
+            return redirect()
+                ->route('home')
+                ->with('error', 'Orders are temporarily unavailable. Please try again shortly.');
+        }
+
         return view('orders.index', compact('orders'));
     }
 

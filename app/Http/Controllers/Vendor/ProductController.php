@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ProductController extends Controller
 {
@@ -91,16 +92,25 @@ class ProductController extends Controller
 
         // Handle images
         $isPrimary = true;
-        foreach ($request->file('images', []) as $image) {
-            $path = $image->store('products', 'public');
+        try {
+            foreach ($request->file('images', []) as $image) {
+                $path = $image->store('products', 'public');
 
-            ProductImage::create([
-                'product_id' => $product->id,
-                'image_path' => $path,
-                'is_primary' => $isPrimary,
-            ]);
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $path,
+                    'is_primary' => $isPrimary,
+                ]);
 
-            $isPrimary = false;
+                $isPrimary = false;
+            }
+        } catch (Throwable $e) {
+            report($e);
+            $product->delete();
+
+            return back()
+                ->withInput()
+                ->withErrors(['images' => 'We could not save your product images right now. Please try again shortly.']);
         }
 
         return redirect()->route('vendor.products.index')
@@ -161,14 +171,22 @@ class ProductController extends Controller
 
         // Handle new images
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
+            try {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('products', 'public');
 
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => $path,
-                    'is_primary' => false,
-                ]);
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_path' => $path,
+                        'is_primary' => false,
+                    ]);
+                }
+            } catch (Throwable $e) {
+                report($e);
+
+                return back()
+                    ->withInput()
+                    ->withErrors(['images' => 'We could not save the uploaded images right now. Please try again shortly.']);
             }
         }
 
