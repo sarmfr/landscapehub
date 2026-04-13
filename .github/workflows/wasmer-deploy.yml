@@ -26,7 +26,19 @@ jobs:
           coverage: none
 
       - name: Install Composer dependencies
-        run: composer install --no-dev --prefer-dist --optimize-autoloader
+        env:
+          COMPOSER_MIRROR_PATH_REPOS: 1
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Verify packaged path dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f vendor/landscapehub/mpesa-daraja-plugin/src/MpesaDarajaServiceProvider.php
+          if [ -L vendor/landscapehub/mpesa-daraja-plugin ]; then
+            echo "Path dependency is still a symlink; expected a mirrored copy."
+            exit 1
+          fi
 
       - name: Install Wasmer CLI
         run: curl https://get.wasmer.io -sSfL | sh
