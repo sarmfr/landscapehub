@@ -4,6 +4,19 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Wasmer deployments may start from a package without empty storage folders.
+foreach ([
+    __DIR__.'/../storage/app/public',
+    __DIR__.'/../storage/framework/cache/data',
+    __DIR__.'/../storage/framework/sessions',
+    __DIR__.'/../storage/framework/views',
+    __DIR__.'/../storage/logs',
+] as $directory) {
+    if (!is_dir($directory)) {
+        mkdir($directory, 0777, true);
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
