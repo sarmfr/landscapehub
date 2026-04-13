@@ -17,6 +17,24 @@ foreach ([
     }
 }
 
+$appKey = getenv('APP_KEY') ?: ($_SERVER['APP_KEY'] ?? $_ENV['APP_KEY'] ?? null);
+
+if (!is_string($appKey) || !preg_match('/^base64:(.+)$/', $appKey, $matches)) {
+    error_log('Invalid APP_KEY format detected before Laravel bootstrap.');
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=UTF-8');
+    exit('Server misconfiguration: invalid APP_KEY format.');
+}
+
+$decodedKey = base64_decode($matches[1], true);
+
+if ($decodedKey === false || strlen($decodedKey) !== 32) {
+    error_log('Invalid APP_KEY length detected before Laravel bootstrap.');
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=UTF-8');
+    exit('Server misconfiguration: APP_KEY must decode to 32 bytes.');
+}
+
 /*
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
