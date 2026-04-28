@@ -17,6 +17,7 @@
     </div>
     <div class="flex gap-4">
         <a href="{{ route('admin.users.index') }}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg shadow hover:bg-gray-200 transition">← Back to Users</a>
+        <a href="{{ route('admin.users.edit', $user) }}" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition">Edit User</a>
         @if(!$user->isAdmin())
         <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Delete this user?');">
             @csrf

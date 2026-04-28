@@ -69,17 +69,27 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(User $user)
     {
-        abort(404);
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user)
     {
-        abort(404);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'role' => 'required|in:admin,vendor,customer',
+            'is_verified' => 'boolean',
+        ]);
+
+        $user->update($validated);
+
+        return redirect()->route('admin.users.show', $user)->with('success', 'User updated successfully.');
     }
 
     /**

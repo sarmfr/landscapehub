@@ -15,6 +15,7 @@ use App\Http\Controllers\Vendor\DashboardController as VendorDashboard;
 use App\Http\Controllers\Vendor\ProfileController as VendorProfileController;
 use App\Http\Controllers\Vendor\ProductController as VendorProductController;
 use App\Http\Controllers\Vendor\ServiceController as VendorServiceController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
@@ -25,12 +26,14 @@ Route::get('/products', [HomeController::class, 'products'])->name('products');
 Route::get('/services', [HomeController::class, 'services'])->name('services');
 Route::get('/products/{slug}', [HomeController::class, 'showProduct'])->name('products.show');
 Route::get('/services/{slug}', [HomeController::class, 'showService'])->name('services.show');
+Route::get('/storage/{path}', MediaController::class)
+    ->where('path', '.*')
+    ->name('media.public');
 
 // Auth routes
 Route::get('/login', [LoginController::class, 'showForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::get('/logout', [LoginController::class, 'logout']); // Fallback for accidental GET requests
 
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
@@ -44,7 +47,7 @@ Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.c
 // Booking routes
 Route::get('/services/{service}/book', [BookingController::class, 'create'])->name('bookings.create');
 Route::post('/services/{service}/book', [BookingController::class, 'store'])->name('bookings.store');
-Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show')->middleware('auth');
 Route::get('/my-bookings', [BookingController::class, 'myBookings'])->name('bookings.my')->middleware('auth');
 
 // Auth dependent routes (Orders, Profile, Reviews)
@@ -54,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/{order}/payment', [OrderController::class, 'payment'])->name('order.payment');
     Route::post('/orders/{order}/payment', [OrderController::class, 'processPayment'])->name('order.payment.process');
+    Route::get('/orders/{order}/payment/status', [OrderController::class, 'paymentStatus'])->name('order.payment.status');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -68,26 +72,32 @@ Route::middleware('auth')->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
     // Quote Routes (Customer)
-    Route::resource('quotes', \App\Http\Controllers\QuoteController::class);
+    Route::resource('quotes', \App\Http\Controllers\QuoteController::class)
+        ->only(['index', 'create', 'store', 'show']);
     Route::post('/quotes/responses/{response}/accept', [\App\Http\Controllers\QuoteController::class, 'acceptResponse'])->name('quotes.accept');
 });
 
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/payment-settings', [AdminDashboard::class, 'updatePaymentSettings'])->name('dashboard.payment-settings');
 
     // Vendor Management
-    Route::resource('vendors', AdminVendorController::class);
+    Route::resource('vendors', AdminVendorController::class)
+        ->only(['index', 'show', 'edit', 'destroy']);
     Route::put('/vendors/{vendor}/approve', [AdminVendorController::class, 'approve'])->name('vendors.approve');
     Route::post('/vendors/{vendor}/reject', [AdminVendorController::class, 'reject'])->name('vendors.reject');
     Route::post('/vendors/{vendor}/suspend', [AdminVendorController::class, 'suspend'])->name('vendors.suspend');
     Route::post('/vendors/{vendor}/reactivate', [AdminVendorController::class, 'reactivate'])->name('vendors.reactivate');
+    Route::put('/vendors/{vendor}/commission', [AdminVendorController::class, 'updateCommission'])->name('vendors.commission');
 
     // User Management
-    Route::resource('users', AdminUserController::class);
+    Route::resource('users', AdminUserController::class)
+        ->except(['create', 'store']);
 
     // Category Management
-    Route::resource('categories', AdminCategoryController::class);
+    Route::resource('categories', AdminCategoryController::class)
+        ->except(['show']);
 
     // Content/Product Moderation
     Route::resource('products', AdminProductController::class)->only(['index', 'show', 'destroy']);
@@ -106,12 +116,13 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'vendor'])->group(
     Route::get('/profile', [VendorProfileController::class, 'show'])->name('profile.show');
 
     // Product Management
-    Route::resource('products', VendorProductController::class);
+    Route::resource('products', VendorProductController::class)
+        ->except(['show']);
     Route::delete('/products/{product}/image/{image}', [VendorProductController::class, 'deleteImage'])->name('products.deleteImage');
 
     // Service Management
-    Route::resource('services', VendorServiceController::class);
-    Route::delete('/products/{product}/image/{image}', [VendorProductController::class, 'deleteImage'])->name('products.deleteImage');
+    Route::resource('services', VendorServiceController::class)
+        ->except(['show']);
 
     // Quote Management (Vendor)
     Route::get('/quotes', [\App\Http\Controllers\Vendor\QuoteController::class, 'index'])->name('quotes.index');

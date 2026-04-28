@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL UNIQUE,
   `slug` varchar(255) NOT NULL UNIQUE,
-  `type` enum('product','service') DEFAULT 'product',
+  `type` enum('product','service','both') DEFAULT 'product',
   `description` longtext,
   `icon` varchar(255),
   `created_at` timestamp NULL,

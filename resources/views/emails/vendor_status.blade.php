@@ -91,6 +91,7 @@
 
             @if($status === 'approved')
             <p>Congratulations! Your account has been approved. You can now start listing your products and services on our marketplace.</p>
+            <p><strong>Your Commission Rate:</strong> {{ $vendor->commission_rate }}% (This is the platform fee deducted from your sales)</p>
             <a href="{{ route('vendor.dashboard') }}" class="btn">Go to Dashboard</a>
             @elseif($status === 'rejected')
             <p>We regret to inform you that your vendor application has been rejected.</p>

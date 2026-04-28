@@ -67,7 +67,8 @@
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">{{ $user->created_at->format('M d, Y') }}</td>
                 <td class="px-6 py-4">
-                    <a href="{{ route('admin.users.show', $user) }}" class="text-green-600 hover:text-green-800 font-semibold text-sm mr-4">View</a>
+                    <a href="{{ route('admin.users.show', $user) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-sm mr-3">View</a>
+                    <a href="{{ route('admin.users.edit', $user) }}" class="text-green-600 hover:text-green-800 font-semibold text-sm mr-3">Edit</a>
                     @if(!$user->isAdmin())
                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline"
                         onsubmit="return confirm('Delete this user?');">

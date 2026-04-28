@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
+use App\Services\SafeMailService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\VendorStatusChanged;
 use Illuminate\Support\Facades\Auth;
 
 class VendorController extends Controller
 {
-    public function __construct()
+    public function __construct(protected SafeMailService $safeMail)
     {
         $this->middleware('auth');
         $this->middleware('admin');
@@ -76,7 +76,12 @@ class VendorController extends Controller
             'commission_rate' => $validated['commission_rate'],
         ]);
 
-        Mail::to($vendor->user->email)->send(new VendorStatusChanged($vendor, 'approved'));
+        $this->safeMail->send(
+            $vendor->user->email,
+            new VendorStatusChanged($vendor, 'approved'),
+            'Vendor approval email failed to send.',
+            ['vendor_id' => $vendor->id]
+        );
 
         return redirect()->route('admin.vendors.show', $vendor)
             ->with('success', 'Vendor approved successfully!');
@@ -95,7 +100,12 @@ class VendorController extends Controller
             'approval_status' => 'rejected',
         ]);
 
-        Mail::to($vendor->user->email)->send(new VendorStatusChanged($vendor, 'rejected', $validated['rejection_reason']));
+        $this->safeMail->send(
+            $vendor->user->email,
+            new VendorStatusChanged($vendor, 'rejected', $validated['rejection_reason']),
+            'Vendor rejection email failed to send.',
+            ['vendor_id' => $vendor->id]
+        );
 
         return redirect()->route('admin.vendors.index')
             ->with('success', 'Vendor rejected successfully!');
@@ -114,7 +124,12 @@ class VendorController extends Controller
             'approval_status' => 'suspended',
         ]);
 
-        Mail::to($vendor->user->email)->send(new VendorStatusChanged($vendor, 'suspended', $validated['suspension_reason']));
+        $this->safeMail->send(
+            $vendor->user->email,
+            new VendorStatusChanged($vendor, 'suspended', $validated['suspension_reason']),
+            'Vendor suspension email failed to send.',
+            ['vendor_id' => $vendor->id]
+        );
 
         return redirect()->route('admin.vendors.show', $vendor)
             ->with('success', 'Vendor suspended successfully!');
@@ -147,5 +162,21 @@ class VendorController extends Controller
 
         return redirect()->route('admin.vendors.index')
             ->with('success', 'Vendor deleted successfully!');
+    }
+
+    /**
+     * Update vendor commission rate
+     */
+    public function updateCommission(Request $request, Vendor $vendor)
+    {
+        $validated = $request->validate([
+            'commission_rate' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $vendor->update([
+            'commission_rate' => $validated['commission_rate'],
+        ]);
+
+        return back()->with('success', 'Commission rate updated to ' . $validated['commission_rate'] . '%');
     }
 }

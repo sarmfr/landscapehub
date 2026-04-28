@@ -1,0 +1,4 @@
+{
+  "build_command": "composer install --no-dev --prefer-dist --optimize-autoloader",
+  "deploy_command": "wasmer deploy -vv --non-interactive --publish-package --no-wait"
+}

@@ -47,7 +47,7 @@
                     </form>
                 </td>
                 <td class="px-6 py-4 text-right space-x-2">
-                    <a href="{{ route('products.show', $product->slug) }}" target="_blank" class="text-blue-600 hover:text-blue-900 font-medium text-sm">View</a>
+                    <a href="{{ route('admin.products.show', $product) }}" class="text-blue-600 hover:text-blue-900 font-medium text-sm mr-3">View</a>
                     <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this product?')">
                         @csrf
                         @method('DELETE')

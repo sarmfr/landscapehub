@@ -1,0 +1,9 @@
+kind: wasmer.io/App.v0
+owner: samson
+name: landscapehub
+package: .
+
+debug: false
+
+scaling:
+  mode: single_concurrency

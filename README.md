@@ -249,25 +249,17 @@ Private - LandScapeHub 2026
 
 ## Deployment
 
-### To DigitalOcean/VPS
-1. Push to GitHub
-2. SSH into server
-3. Clone repository
-4. Install dependencies: `composer install`
-5. Run migrations: `php artisan migrate`
-6. Configure SSL certificate
-7. Setup domain pointing
-8. Configure Apache/Nginx
-9. Set up background jobs for orders
-10. Monitor logs and performance
+### To Wasmer Edge
+1. Use a MySQL-compatible database and a Wasmer volume for uploaded media
+2. Copy `app.yaml.example` to `app.yaml` and set your Wasmer `owner` and app `name`
+3. Copy `.env.wasmer.example` into your own deployment env file and fill in real values
+4. Generate an app key with `php artisan key:generate --show`
+5. Add the production values to Wasmer secrets
+6. Run `wasmer deploy`
+7. Run database migrations on the production database
+8. Confirm login, cart, checkout, and vendor flows work before replacing mock payments
 
-### Environment Variables for Production
-- Set `APP_DEBUG=false`
-- Use production database
-- Store files on S3
-- Configure mail service
-- Enable HTTPS
-- Setup Laravel Horizon for queues
+See [WASMER_DEPLOY.md](/C:/xampp/htdocs/landscapehub/WASMER_DEPLOY.md) for the detailed Wasmer notes and [PRE_DEPLOY_CHECKLIST.md](/C:/xampp/htdocs/landscapehub/PRE_DEPLOY_CHECKLIST.md) for the Wasmer release checklist.
 
 ---
 

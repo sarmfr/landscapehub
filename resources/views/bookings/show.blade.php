@@ -4,10 +4,9 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto px-6 py-12">
-    <!-- Header -->
     <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-            <a href="{{ route('bookings.my') }}" class="text-green-700 hover:underline font-bold">← My Bookings</a>
+            <a href="{{ route('bookings.my') }}" class="text-green-700 hover:underline font-bold">Back to My Bookings</a>
             <h1 class="text-3xl font-black mt-2 text-gray-900">Booking Request Details</h1>
             <p class="text-gray-500">Submitted on {{ $booking->created_at->format('M d, Y \a\t H:i') }}</p>
         </div>
@@ -22,9 +21,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
-            <!-- Service Info Card -->
             <div class="bg-white rounded-3xl shadow-xl border overflow-hidden">
                 <div class="p-8 border-b bg-gray-50">
                     <h2 class="text-xl font-bold text-gray-900">Requested Service</h2>
@@ -35,7 +32,7 @@
                             @if($booking->service->getImageUrl())
                             <img src="{{ $booking->service->getImageUrl() }}" alt="{{ $booking->service->name }}" class="w-full h-full object-cover">
                             @else
-                            <div class="w-full h-full flex items-center justify-center text-4xl">🏗</div>
+                            <div class="w-full h-full flex items-center justify-center text-sm text-gray-500">No image</div>
                             @endif
                         </div>
                         <div>
@@ -57,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- Client Requirements Card -->
             <div class="bg-white rounded-3xl shadow-xl border overflow-hidden">
                 <div class="p-8 border-b bg-gray-50">
                     <h2 class="text-xl font-bold text-gray-900">Your Requirements</h2>
@@ -93,9 +89,7 @@
             </div>
         </div>
 
-        <!-- Sidebar -->
         <div class="space-y-8">
-            <!-- Vendor Info -->
             <div class="bg-green-800 text-white rounded-3xl shadow-xl p-8">
                 <h3 class="font-black text-xl mb-4">Contact Professional</h3>
                 <p class="text-green-100 text-sm mb-6 leading-relaxed">
@@ -103,14 +97,14 @@
                 </p>
                 <div class="space-y-4">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">📞</div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">TEL</div>
                         <div>
                             <p class="text-xs text-green-300 font-bold uppercase tracking-widest">Business Phone</p>
                             <p class="font-bold">{{ $booking->vendor->business_phone ?? 'Available upon confirmation' }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">🏫</div>
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">BIZ</div>
                         <div>
                             <p class="text-xs text-green-300 font-bold uppercase tracking-widest">Business Name</p>
                             <p class="font-bold">{{ $booking->vendor->business_name }}</p>
@@ -119,7 +113,7 @@
                 </div>
                 <div class="mt-8 pt-6 border-t border-white/10">
                     <p class="text-xs italic text-green-200">
-                        Need help? <a href="#" class="underline hover:text-white">Contact support</a> if you don't hear back within 24 hours.
+                        Need help? <a href="mailto:admin@landscapehub.com?subject=Booking%20Support" class="underline hover:text-white">Contact support</a> if you don't hear back within 24 hours.
                     </p>
                 </div>
             </div>

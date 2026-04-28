@@ -1,0 +1,78 @@
+name: Deploy to Wasmer
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/wasmer-github-deploy
+
+concurrency:
+  group: wasmer-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install Composer dependencies
+        env:
+          COMPOSER_MIRROR_PATH_REPOS: 1
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Verify packaged path dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f vendor/landscapehub/mpesa-daraja-plugin/src/MpesaDarajaServiceProvider.php
+          if [ -L vendor/landscapehub/mpesa-daraja-plugin ]; then
+            echo "Path dependency is still a symlink; expected a mirrored copy."
+            exit 1
+          fi
+
+      - name: Install Wasmer CLI
+        run: curl https://get.wasmer.io -sSfL | sh
+
+      - name: Add Wasmer to PATH
+        run: echo "$HOME/.wasmer/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Wasmer CLI
+        run: wasmer --version
+
+      - name: Log in to Wasmer
+        env:
+          WASMER_TOKEN: ${{ secrets.WASMER_TOKEN }}
+        run: wasmer login --no-browser
+
+      - name: Deploy app (with retries)
+        env:
+          WASMER_TOKEN: ${{ secrets.WASMER_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4; do
+            echo "Wasmer deploy attempt ${attempt}/4"
+            if wasmer deploy -vv --non-interactive --publish-package --no-wait; then
+              echo "Wasmer deploy command succeeded on attempt ${attempt}"
+              exit 0
+            fi
+
+            if [ "$attempt" -lt 4 ]; then
+              sleep_seconds=$((attempt * 20))
+              echo "Wasmer deploy failed on attempt ${attempt}; retrying in ${sleep_seconds}s..."
+              sleep "$sleep_seconds"
+            fi
+          done
+
+          echo "Wasmer deploy failed after 4 attempts."
+          exit 1

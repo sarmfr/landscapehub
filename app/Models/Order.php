@@ -19,9 +19,17 @@ class Order extends Model
         'vendor_amount',
         'status',
         'payment_status',
+        'payment_provider',
         'mpesa_reference',
+        'merchant_request_id',
+        'checkout_request_id',
         'mpesa_phone',
+        'payment_payload',
         'notes',
+    ];
+
+    protected $casts = [
+        'payment_payload' => 'array',
     ];
 
     public function user(): BelongsTo

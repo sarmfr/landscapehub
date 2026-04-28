@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PDOException;
 
 class CartController extends Controller
 {
@@ -16,16 +18,27 @@ class CartController extends Controller
         $total = 0;
         $items = [];
 
-        foreach ($cart as $productId => $quantity) {
-            $product = Product::find($productId);
-            if ($product) {
-                $items[] = [
-                    'product' => $product,
-                    'quantity' => $quantity,
-                    'subtotal' => $product->price * $quantity,
-                ];
-                $total += $product->price * $quantity;
+        try {
+            foreach ($cart as $productId => $quantity) {
+                $product = Product::find($productId);
+                if ($product) {
+                    $items[] = [
+                        'product' => $product,
+                        'quantity' => $quantity,
+                        'subtotal' => $product->price * $quantity,
+                    ];
+                    $total += $product->price * $quantity;
+                }
             }
+        } catch (QueryException|PDOException $e) {
+            report($e);
+
+            return view('cart', [
+                'items' => [],
+                'total' => 0,
+            ])->withErrors([
+                'cart' => 'Your cart is temporarily unavailable while we reconnect to the database.',
+            ]);
         }
 
         return view('cart', [
@@ -39,7 +52,15 @@ class CartController extends Controller
         $productId = $request->input('product_id');
         $quantity = $request->input('quantity', 1);
 
-        $product = Product::findOrFail($productId);
+        try {
+            $product = Product::findOrFail($productId);
+        } catch (QueryException|PDOException $e) {
+            report($e);
+
+            return back()->withErrors([
+                'cart' => 'We could not add this item right now. Please try again shortly.',
+            ]);
+        }
 
         if ($product->vendor->approval_status !== 'approved') {
             return back()->withErrors(['vendor' => 'This vendor is currently suspended. Purchases are temporarily disabled.']);
@@ -73,30 +94,46 @@ class CartController extends Controller
             return redirect()->route('login');
         }
 
+        $request->validate([
+            'mpesa_phone' => ['required', 'string', 'max:20'],
+        ]);
+
         $cart = session()->get('cart', []);
         if (empty($cart)) {
             return redirect()->route('cart.view')->withErrors(['cart' => 'Your cart is empty!']);
         }
 
         $total = 0;
+        $commissionAmount = 0;
         $items = [];
 
-        foreach ($cart as $productId => $quantity) {
-            $product = Product::find($productId);
-            if ($product) {
-                $items[] = [
-                    'product_id' => $productId,
-                    'product_name' => $product->name,
-                    'quantity' => $quantity,
-                    'price' => $product->price,
-                    'subtotal' => $product->price * $quantity,
-                ];
-                $total += $product->price * $quantity;
+        try {
+            foreach ($cart as $productId => $quantity) {
+                $product = Product::with('vendor')->find($productId);
+                if ($product) {
+                    $subtotal = $product->price * $quantity;
+                    $rate = (float) ($product->vendor->commission_rate ?? config('payment.commission_rate', 10));
+
+                    $items[] = [
+                        'product_id' => $productId,
+                        'product_name' => $product->name,
+                        'quantity' => $quantity,
+                        'price' => $product->price,
+                        'subtotal' => $subtotal,
+                    ];
+
+                    $total += $subtotal;
+                    $commissionAmount += ($subtotal * $rate) / 100;
+                }
             }
+        } catch (QueryException|PDOException $e) {
+            report($e);
+
+            return redirect()
+                ->route('cart.view')
+                ->withErrors(['cart' => 'Checkout is temporarily unavailable. Please try again shortly.']);
         }
 
-        $commissionRate = config('app.commission_rate', 10);
-        $commissionAmount = ($total * $commissionRate) / 100;
         $vendorAmount = $total - $commissionAmount;
 
         $order = Order::create([
@@ -107,6 +144,7 @@ class CartController extends Controller
             'vendor_amount' => $vendorAmount,
             'status' => 'pending',
             'payment_status' => 'pending',
+            'payment_provider' => config('payment.default', 'mpesa'),
             'mpesa_phone' => $request->input('mpesa_phone'),
         ]);
 
